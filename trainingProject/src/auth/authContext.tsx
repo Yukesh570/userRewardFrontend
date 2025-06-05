@@ -1,9 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode"; // ✅ Correct way
 
 interface AuthContextType {
   token: string | null;
-  login: (token: string, expiresIn: number) => void;
+  login: (token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -26,12 +27,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setTimeout(() => logout(), timeout);
     }
   }, []);
-  const login = (newToken: string, expiresIn: number) => {
-    const expiryTime = Date.now() + expiresIn * 1000;
+  const login = (newToken: string) => {
+    console.log("token", newToken);
+    const decoded: any = jwtDecode(newToken);
+    console.log("decode", decoded);
+    const expTimeMs: any = decoded.exp * 1000; // convert seconds to ms
+    const delay = expTimeMs - Date.now();
+    console.log("delay", delay);
+
+
     localStorage.setItem("token", newToken);
-    localStorage.setItem("expiry", expiryTime.toString());
+    localStorage.setItem("expiry", expTimeMs);
     setToken(newToken);
-    setTimeout(() => logout(), expiresIn * 1000);
+    setTimeout(() => logout(), delay); // logout when token expires
   };
 
   const logout = () => {
@@ -40,12 +48,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.removeItem("expiry");
     navigate("/login");
   };
+  const isAuthenticated = !!token;
 
   return (
     // !!token turn the token into boolean
-    <AuthContext.Provider
-      value={{ token, login, logout, isAuthenticated: !!token }}
-    >
+    <AuthContext.Provider value={{ token, login, logout, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );

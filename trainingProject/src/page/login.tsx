@@ -2,95 +2,99 @@ import { useState } from "react";
 import axios from "axios";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { useAuth } from "../auth/authContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     try {
-      const res = await axios.post("http://localhost:3000/api/login", {
-        email,
+      const res = await axios.post("http://192.168.10.4:3000/api/auth/login", {
+        username,
         password,
-      });
-      login(res.data.token, res.data.expiresIn);
+      },
+     { withCredentials: true } 
+    );
+      login(res.data.token);
+      navigate("/")
     } catch (err) {
-      alert("Login failed!");
+      setError("Invalid username or password");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-red-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100">
       <form
         onSubmit={handleSubmit}
-        className="bg-black p-8 rounded-lg shadow-lg w-full max-w-sm space-y-6"
+        className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-xl w-full max-w-sm space-y-6 border border-white/40"
       >
-        
-        <div className="w-1/2 flex flex-col items-center justify-center space-y-4">
-          <div className="w-auto">
-            <img
-              src="/userReward.jpeg"
-              alt="website logo"
-              className="w-[100px] h-[6100px] object-cover rounded-full"
-            />
-          </div>
-          
-          <h2 className="text-2xl font-bold text-center text-gray-800">
-            Login
-          </h2>
+        <div className="flex flex-col items-center space-y-4">
+          <img
+            src="/userReward.jpeg"
+            alt="Website logo"
+            className="w-[60px] h-[60px] rounded-full shadow-md"
+          />
+          <h2 className="text-2xl font-bold text-gray-800">Welcome Back</h2>
+          <p className="text-sm text-gray-500">Please login to continue</p>
         </div>
 
-        {/* Email Field */}
+        {/* Username Input */}
         <div className="relative">
-          <FaEnvelope className="absolute top-3 left-3 text-gray-400" />
+          <FaEnvelope className="absolute top-3 left-3 text-purple-400" />
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+            type="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
+            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400"
             required
           />
         </div>
 
-        {/* Password Field */}
+        {/* Password Input */}
         <div className="relative">
-          <FaLock className="absolute top-3 left-3 text-gray-400" />
+          <FaLock className="absolute top-3 left-3 text-blue-400" />
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <p className="text-sm text-red-500 text-center font-medium">
+            {error}
+          </p>
+        )}
+
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-200"
+          className="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-2 rounded-md hover:from-purple-600 hover:to-blue-600 transition duration-200 shadow-md"
         >
           Login
         </button>
-        <button
-  type="submit"
-  className="w-full bg-blue-500 text-yellow-300 py-2 rounded-md hover:bg-blue-600 transition duration-200"
->
-  Login
-</button>
 
-      <p className="text-center text-gray-600">
-        Don't have an account?{""}
-      </p>
-      <div className="text-Red-100">
-  <a href="/signUp">Sign Up</a>
-</div>
-
-      <a href="/signUp" className="text-red-500 flex items-center justify-center hover:bg-yellow-100 transition duration-200">
-      signUp</a>
+        {/* Signup Link */}
+        <p className="text-center text-gray-600">
+          Don't have an account?
+          <a
+            href="/signUp"
+            className="text-purple-600 hover:underline ml-1"
+          >
+            Sign up
+          </a>
+        </p>
       </form>
     </div>
   );

@@ -4,7 +4,8 @@ import Login from "./page/login"
 import SignUp from "./page/signUp"
 import Home from "./page/Home"
 import ProtectedRoute from "./auth/protectedRoute"
-import './output.css' // ✅ Import Tailwind styles here
+import GuestRoute from "./auth/guestRoute"
+import Navbar from "./component/Navbars/Navbar"
 
 function App() {
 
@@ -12,9 +13,10 @@ function App() {
     <BrowserRouter>
     <AuthProvider>
       <Routes>
-        <Route path="/login" element={<Login/>}/>
-        <Route path="/signUp"element={<SignUp/>}/>
+        <Route path="/login" element={<GuestRoute><Login/></GuestRoute>}/>
+        <Route path="/signUp"element={<GuestRoute><SignUp/></GuestRoute>}/>
         <Route path="/"element={<ProtectedRoute><Home/></ProtectedRoute>}/>
+        <Route path="/home"element={<Navbar/>}/>
 
       </Routes>
     </AuthProvider>
